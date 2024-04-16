@@ -15,6 +15,7 @@ import torch.distributions as D
 from tqdm.autonotebook import tqdm
 #from nn_utils import MLP
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class MLP(nn.Module):
     """A class to define a neural network in pytorch"""

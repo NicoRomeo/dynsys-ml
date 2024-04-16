@@ -15,7 +15,7 @@ import logging
 
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('tqdm_logger')
+logger = logging.getLogger('Training')
 
 def rotate_sol_tensor(trajectories, angle):
     # trajectories has size (num trajectories) x (num sample points) x 2
@@ -46,7 +46,7 @@ def augment_linear(traj):
 
 if __name__ == '__main__':
     n_epoch = int(1e3)
-    batch_size = 20
+    batch_size = 50
     cur_folder = "./test100cpu"
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -79,18 +79,14 @@ if __name__ == '__main__':
         # sample batch_size dynamical system
         sampled_sys, _ = next(iter(dataloader))
         list_x1s, list_x2s = [], []
-        print("sampled_sys shape:", sampled_sys.shape, sampled_sys.dtype)
+        #print("sampled_sys shape:", sampled_sys.shape, sampled_sys.dtype)
         for sys in range(sampled_sys.shape[0]):
-            x1 = augment_linear(torch.squeeze(sampled_sys[sys,:,:,:])).to(device)
-            x2 = augment_linear(torch.squeeze(sampled_sys[sys,:,:,:])).to(device)
+            x1 = augment_linear(torch.squeeze(sampled_sys[sys,:,:,:]).to(device))
+            x2 = augment_linear(torch.squeeze(sampled_sys[sys,:,:,:]).to(device))
             list_x1s.append(x1)
             list_x2s.append(x2)
-            print("x1 sample shape:", x1.shape)
-        x1 = torch.stack(list_x1s, dim=0)
-        x2 = torch.stack(list_x2s, dim=0)
-        
-        print("x1 shape:", x1.shape, x1.dtype)
-        print("x2 shape:", x2.shape, x2.dtype)
+        x1 = torch.flatten(torch.stack(list_x1s, dim=0),start_dim=1)
+        x2 = torch.flatten(torch.stack(list_x2s, dim=0),start_dim=1)
         
         # feed data and backprop
         model.optimizer.zero_grad()
@@ -102,7 +98,9 @@ if __name__ == '__main__':
             pbar.set_description(f'Loss:\t{-loss.detach().cpu().numpy():0.2f}')
             logger.info(str(pbar))
         losses.append(loss.detach().cpu().numpy())
-
+        pbar.update(1)
+    pbar.set_description(f'Loss:\t{-loss.detach().cpu().numpy():0.2f}')
+    logger.info(str(pbar))
     ## save model
     losses = np.array(losses)
     if not os.path.isdir(cur_folder):
