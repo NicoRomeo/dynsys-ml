@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=dynsys    # create a short name for your job
-#SBATCH -o logs/dynsys.sh.log-%j
+#SBATCH -o logs/training_gpu.sh.log-%j
 #SBATCH --nodes=1                # node count
 #SBATCH --ntasks=1               # total number of tasks across all nodes
 #SBATCH --partition=gpu

@@ -2,6 +2,7 @@ from scipy.io import loadmat
 import numpy as np
 import scipy.integrate as scint
 import os
+import h5py
 import torch
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
@@ -13,12 +14,8 @@ from infoNCE import I_estimator
 import logging
 
 
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('tqdm_logger')
-
-
-train_dataloader = DataLoader(training_data, batch_size=64, shuffle=True)
 
 def rotate_sol_tensor(trajectories, angle):
     # trajectories has size (num trajectories) x (num sample points) x 2
@@ -48,9 +45,9 @@ def augment_linear(traj):
 
 
 if __name__ == '__main__':
-    n_epoch = int(2e4)
-    batch_size = 50
-    cur_folder = "./test100"
+    n_epoch = int(1e3)
+    batch_size = 20
+    cur_folder = "./test100cpu"
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if torch.cuda.is_available():
@@ -67,6 +64,7 @@ if __name__ == '__main__':
 
 
     size_sample = np.prod(sampled_sys[0].shape)
+    print('size_sample:', size_sample)
 
     model = I_estimator(input_shapes=(size_sample , size_sample), n_layers=12, n_channels=128, LR=1e-4) #LR=1e-3
     model.to(device) #'cuda:0'
@@ -81,13 +79,18 @@ if __name__ == '__main__':
         # sample batch_size dynamical system
         sampled_sys, _ = next(iter(dataloader))
         list_x1s, list_x2s = [], []
+        print("sampled_sys shape:", sampled_sys.shape, sampled_sys.dtype)
         for sys in range(sampled_sys.shape[0]):
             x1 = augment_linear(torch.squeeze(sampled_sys[sys,:,:,:])).to(device)
             x2 = augment_linear(torch.squeeze(sampled_sys[sys,:,:,:])).to(device)
             list_x1s.append(x1)
             list_x2s.append(x2)
+            print("x1 sample shape:", x1.shape)
         x1 = torch.stack(list_x1s, dim=0)
         x2 = torch.stack(list_x2s, dim=0)
+        
+        print("x1 shape:", x1.shape, x1.dtype)
+        print("x2 shape:", x2.shape, x2.dtype)
         
         # feed data and backprop
         model.optimizer.zero_grad()
@@ -101,7 +104,7 @@ if __name__ == '__main__':
         losses.append(loss.detach().cpu().numpy())
 
     ## save model
-    losses = torch.tensor(losses)
+    losses = np.array(losses)
     if not os.path.isdir(cur_folder):
         os.makedirs(cur_folder)
     torch.save(losses, cur_folder + '/loss.pt')

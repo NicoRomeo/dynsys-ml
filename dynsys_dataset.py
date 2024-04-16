@@ -11,9 +11,9 @@ from torch.utils.data import Dataset
 class DynsysDataset(Dataset):
     def __init__(self, data_h5, transform=None, target_transform=None):
         self.filename = data_h5 # filename
-        with h5py.File(data_h5, 'r') as f:
+        with h5.File(data_h5, 'r') as f:
             self.len = len(f.keys())
-        self.file = h5py.File(data_h5, 'r')
+        self.file = h5.File(data_h5, 'r')
         self.transform = transform
         self.target_transform = target_transform
 
@@ -22,11 +22,11 @@ class DynsysDataset(Dataset):
 
     def __getitem__(self, idx):
         dset = self.file[str(idx)]
-        params = dset.attr["params"]
+        params = dset.attrs["params"]
         label = params[-1]
         system = dset[...]
         if self.transform:
             system = self.transform(system)
         if self.target_transform:
             label = self.target_transform(label)
-        return system, label
+        return np.float32(system), label
