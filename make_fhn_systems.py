@@ -71,20 +71,8 @@ if __name__ == '__main__':
     tau_list[0:num_perclass] = 0.125*(1+0.2*np.random.randn(num_perclass))
     I_list[0:num_perclass] = 0.5
     labels_list[0:num_perclass] = 0
-    #for i in range(num_perclass):
-    #    a_list[i] = 0.2*(1+0.2*np.random.randn())
-    #    b_list[i] = 0.5*(1+0.2*np.random.randn())
-    #    tau_list[i] = 0.125*(1+0.2*np.random.randn())
-    #    I_list[i] = 0.5
-    #    labels_list.append(0)
 
     # make a few limit cycles - excitable: tau bigger, b small
-    #for i in range(num_perclass, 2*num_perclass):
-    #    a_list[i] = 0.2*(1+0.2*np.random.randn())
-    #    b_list[i] = 0.5*(1+0.2*np.random.randn())
-    #    tau_list[i] = 1*(1+0.2*np.random.randn())
-    #    I_list[i] = 0.5
-    #    labels_list.append(1)
     a_list[num_perclass:2*num_perclass] = 0.2*(1+0.2*np.random.randn(num_perclass))
     b_list[num_perclass:2*num_perclass] = 0.5*(1+0.2*np.random.randn(num_perclass))
     tau_list[num_perclass:2*num_perclass] = 1*(1+0.2*np.random.randn(num_perclass))
@@ -92,12 +80,6 @@ if __name__ == '__main__':
     labels_list[num_perclass:2*num_perclass] = 1
 
     # make a few monostable - excitable: tau bigger, b large, a and I s.t. only 1 fp
-    #for i in range(2*num_perclass, 3*num_perclass):
-    #    a_list[i] = 0.8*(1+0.2*np.random.randn())
-    #    b_list[i] = 1*(1+0.2*np.random.randn())
-    #    tau_list[i] = 12.5*(1+0.2*np.random.randn())
-    #    I_list[i] = 0.1
-    #    labels_list.append(2)
     a_list[2*num_perclass:3*num_perclass] = 0.8*(1.0 + 0.2*np.random.randn(num_perclass))
     b_list[2*num_perclass:3*num_perclass] = 1.0*(1.0 + 0.2*np.random.randn(num_perclass))
     tau_list[2*num_perclass:3*num_perclass] = 12.5*(1.0 + 0.2*np.random.randn(num_perclass))
@@ -105,12 +87,6 @@ if __name__ == '__main__':
     labels_list[2*num_perclass:3*num_perclass] = 2
 
     # make a few bistable: tau bigger, b large, a and I s.t. 3 fp
-    #for i in range(3*num_perclass, num_systems):
-    #    a_list[i] = 0.8*(1+0.2*np.random.randn())
-    #    b_list[i] = 2*(1+0.2*np.random.randn())
-    #    tau_list[i] = 12.5*(1+0.2*np.random.randn())
-    #    I_list[i] = 0.5
-    #    labels_list.append(3)
     a_list[3*num_perclass:4*num_perclass] = 0.8*(1.0 + 0.2*np.random.randn(num_perclass))
     b_list[3*num_perclass:4*num_perclass] = 2.0*(1.0 + 0.2*np.random.randn(num_perclass))
     tau_list[3*num_perclass:4*num_perclass] = 12.5*(1.0 + 0.2*np.random.randn(num_perclass))
