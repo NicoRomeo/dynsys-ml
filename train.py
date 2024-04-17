@@ -58,7 +58,10 @@ def augment_linear(traj):
 if __name__ == '__main__':
     n_epoch = int(7e4)
     batch_size = 1000
-    cur_folder = "./train1e4_gpu_b1e3_lr4_d6_linear"
+    n_layers = 6
+    n_channels = 128
+    cur_folder = "./train1e4_gpu_b1e3_lr4_d{0}_linear".format(n_layers)
+    
     
     
     #device=torch.device("cuda:0")
@@ -71,9 +74,9 @@ if __name__ == '__main__':
 
 
     size_sample = np.prod(sampled_sys[0].shape)
-    print('size_sample:', size_sample)
+    logger.info("Encoder dimensions: input: {0}x{1} >> [{2} layers] >> embedding: {3}".format(batch_size, size_sample, n_layers, n_channels))
 
-    model = I_estimator(input_shapes=(size_sample , size_sample), n_layers=6, n_channels=128, LR=1e-4) #LR=1e-3
+    model = I_estimator(input_shapes=(size_sample , size_sample), n_layers=n_layers, n_channels=n_channels, LR=1e-4) #LR=1e-3
     model.to(device) #'cuda:0'
 
 
