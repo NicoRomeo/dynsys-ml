@@ -1,19 +1,20 @@
 """Dataset class for dynamical system data
 
+Defines a DynsysDataset class inherited from PyTorch's Dataset class to handle samplign from sets of dynamical system trajectories.
+
 """
 
-import os
 import numpy as np
-import h5py as h5
+import h5py
 import torch
 from torch.utils.data import Dataset
 
 class DynsysDataset(Dataset):
     def __init__(self, data_h5, transform=None, target_transform=None):
         self.filename = data_h5 # filename
-        with h5.File(data_h5, 'r') as f:
+        with h5py.File(data_h5, 'r') as f:
             self.len = len(f.keys())
-        self.file = h5.File(data_h5, 'r')
+        self.file = h5py.File(data_h5, 'r')
         self.transform = transform
         self.target_transform = target_transform
 

@@ -1,18 +1,13 @@
 """Contrastive learning neural network architecture
 
-Defines a Multilayer perceptron and the I_estimator class which implements contrastive learning using
+Defines a Multilayer perceptron  and the I_estimator class which implements contrastive learning using
 a single-encoder InfoNCE architecture.
 
 """
 
-from scipy.io import loadmat
 import numpy as np
-import matplotlib.pyplot as plt
-import os
 import torch
 import torch.nn as nn
-import torch.distributions as D
-from tqdm.autonotebook import tqdm
 #from nn_utils import MLP
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -36,7 +31,6 @@ class MLP(nn.Module):
             layers.append( activation ) 
 
         self.encoder = nn.Sequential(*layers)
-
 
     def forward(self, x):
         x = self.encoder(x)
@@ -70,10 +64,11 @@ class I_estimator(nn.Module):
         f = torch.einsum('ij,kj->ik', enc1, enc2) # measures cosine distances, size batch x batch
         #print(f.shape)
         
-        # The loss function computes a cross entropy over positive/negative samples. positive samples are on diagonal, negative samples are all others.
-        loss = torch.nn.functional.cross_entropy( f, torch.eye(len(f), device=device), reduction='mean') - np.log(f.shape[0])
+        # The loss function computes a cross entropy over positive/negative samples. 
+        # positive samples are on diagonal, negative samples are all others.
+        loss = torch.nn.functional.cross_entropy(f, 
+                                                 torch.eye(len(f), device=device),
+                                                 reduction='mean') - np.log(f.shape[0])
         # the eye is the true matrix, encoding which pairs of samples are positive. f ~ log(p)
         # - np.log(f.shape[0]) = - log of batch size : makes loss an estimate to -(mutual information)
-
         return loss, enc1, enc2, f
-    
