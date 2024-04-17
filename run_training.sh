@@ -12,7 +12,7 @@
 #SBATCH --time=36:00:00
 #SBATCH --account=pi-dinner
 
-#  conda activate ./env/cuda
+conda activate ./env/cuda
 module load hdf5
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
