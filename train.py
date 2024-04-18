@@ -76,11 +76,12 @@ def deform(traj, N_anchors=10, s_anchor=0.1, w_anchor=1.0):
 
 if __name__ == '__main__':
     #####  TRAINING AND NET HYPERPARAMS ##### 
-    n_epoch = int(2e4)
-    batch_size = 1000
-    n_layers = 6
-    n_channels = 128
-    cur_folder = "./train1e4_gpu_b1e3_lr4_d{0}_nlin_e2e4".format(n_layers)
+    n_epoch = int(1e3) # training iterations
+    batch_size = 1000 # samples per batch
+    n_layers = 6 # number of DNN layers
+    n_channels = 128 # embedding space dimension
+    LR = 1e-4 # learning rate
+    cur_folder = "./train1e4_gpu_b1e3_lr4_d{0}_nlin_test".format(n_layers)
     
     ##### NON-LINEAR AUGMENTATION PARAMETERS ##### 
     N_anchors = 10 # number of deformation nodes
@@ -104,7 +105,7 @@ if __name__ == '__main__':
     model = I_estimator(input_shapes=(size_sample , size_sample),
                         n_layers=n_layers,
                         n_channels=n_channels,
-                        LR=1e-4
+                        LR=LR
                        ) #LR=1e-3
     model.to(device)
 
@@ -141,13 +142,21 @@ if __name__ == '__main__':
         model.optimizer.step()
         # progress update
         if pbar.n % LOG_INTERVAL == 0:
-            pbar.set_description(f'Loss:\t{-loss.detach().cpu().numpy():0.2f}')
+            if torch.cuda.is_available():
+                gpu_usage = torch.cuda.utilization(device=device)
+                pbar.set_description(f'Loss:\t{-loss.detach().cpu().numpy():0.2f}, gpu:\t{gpu_usage:0.2f}')
+            else:
+                pbar.set_description(f'Loss:\t{-loss.detach().cpu().numpy():0.2f}')
             logger.info(str(pbar))
         losses.append(loss.detach().cpu().numpy())
         pbar.update(1)
     ##### END OF TRAINING OPERATIONS ##### 
     ## Final progress bar update
-    pbar.set_description(f'Loss:\t{-loss.detach().cpu().numpy():0.2f}')
+    if torch.cuda.is_available():
+        gpu_usage = torch.cuda.utilization(device=device)
+        pbar.set_description(f'Loss:\t{-loss.detach().cpu().numpy():0.2f}, gpu:\t{gpu_usage:0.2f}')
+    else:
+        pbar.set_description(f'Loss:\t{-loss.detach().cpu().numpy():0.2f}')
     logger.info(str(pbar))
     ## save model
     losses = np.array(losses)
