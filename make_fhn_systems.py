@@ -26,8 +26,9 @@ def fhn_models(x0, T_samples, a,b, I, tau):
     return sol.y.T
 
 
-def main(a, b, tau, I, label):
+def main(a, b, tau, I, label, seed):
     #print('Integrating i={0}'.format(rank))
+    np.random.seed(seed)
     results = []
     #a, b, tau, I, _ = parameters
     parameters = a, b, tau, I, label
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     num_IC = int(sys.argv[2])
     
     #n_cpu = cpu_count()
-    n_jobs = int(sys.argv[3])
+    n_jobs = int(sys.argv[3]) # number_of_cores = int(os.environ['SLURM_CPUS_PER_TASK'])
     n_cpu = n_jobs
     
     t0 = time()
@@ -93,7 +94,9 @@ if __name__ == '__main__':
     I_list[3*num_perclass:4*num_perclass] = 0.5
     labels_list[3*num_perclass:4*num_perclass] = 3
 
-    parameters = [ (a_list[_i], b_list[_i], tau_list[_i], I_list[_i], labels_list[_i]) for _i in range(num_systems)]
+    def make_randseed():
+        return int(np.random.rand()*1e16 % 123456789)
+    parameters = [ (a_list[_i], b_list[_i], tau_list[_i], I_list[_i], labels_list[_i], make_randseed()) for _i in range(num_systems)]
     t1 = time()
     print("start-up in {0:.2f} s".format(t1-t0))
     print('###### START INTEGRATION ######')
