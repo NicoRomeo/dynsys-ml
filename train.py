@@ -76,21 +76,21 @@ def deform(traj, N_anchors=10, s_anchor=0.1, w_anchor=1.0):
 
 if __name__ == '__main__':
     #####  TRAINING AND NET HYPERPARAMS ##### 
-    n_epoch = int(1e3) # training iterations
+    n_epoch = int(7e4) # training iterations
     batch_size = 1000 # samples per batch
-    n_layers = 6 # number of DNN layers
-    n_channels = 128 # embedding space dimension
+    n_layers = 3 # number of DNN layers
+    n_channels = 18 # embedding space dimension
     LR = 1e-4 # learning rate
-    cur_folder = "./train1e4_gpu_b1e3_lr4_d{0}_nlin_test".format(n_layers)
+    cur_folder = "./gen2e4_b1e3_lr4_d{0}_n{1}_lin".format(n_layers, n_channels)
     
     ##### NON-LINEAR AUGMENTATION PARAMETERS ##### 
     N_anchors = 10 # number of deformation nodes
     s_anchors = 0.1 # amplitude of deformation. should stay < 1 for good behavior
     w_anchor = 1.0 # width of deformation bumps
-    ratio_deformed = 0.1 # ratio of samples in a batch going through NL transform
+    ratio_deformed = 0. # ratio of samples in a batch going through NL transform
 
     #####  load data ##### 
-    filename = "datagen_fhn_pool_10000.hdf5"
+    filename = "datagen_generic_pool_20000.hdf5"
     dataset = DynsysDataset(filename, transform=None)
 
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
