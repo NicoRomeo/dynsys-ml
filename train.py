@@ -76,12 +76,19 @@ def deform(traj, N_anchors=10, s_anchor=0.1, w_anchor=1.0):
 
 if __name__ == '__main__':
     #####  TRAINING AND NET HYPERPARAMS ##### 
-    n_epoch = int(7e4) # training iterations
-    batch_size = 1000 # samples per batch
+    n_epoch = int(5e4) # training iterations
+    batch_size = 300 # samples per batch
     n_layers = 3 # number of DNN layers
-    n_channels = 18 # embedding space dimension
+    n_channels = 128  # embedding space dimension
     LR = 1e-4 # learning rate
-    cur_folder = "./gen2e4_b1e3_lr4_d{0}_n{1}_lin".format(n_layers, n_channels)
+    
+    epoch_dec = int(np.log10(n_epoch))
+    epoch_mant= round(np.log10(n_epoch)-epoch_dec)
+    cur_folder = "./gen2e4_b3e2_e{3}e{4}_lr{0}_d{1}_n{2}_lin".format(int(-np.log10(LR)),
+                                                                     n_layers,
+                                                                     n_channels,
+                                                                     epoch_mant,
+                                                                     epoch_dec)
     
     ##### NON-LINEAR AUGMENTATION PARAMETERS ##### 
     N_anchors = 10 # number of deformation nodes
@@ -91,7 +98,7 @@ if __name__ == '__main__':
 
     #####  load data ##### 
     filename = "datagen_generic_pool_20000.hdf5"
-    dataset = DynsysDataset(filename, transform=None)
+    dataset = DynsysDataset(filename, transform=None, stride=4)
 
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     sampled_sys, _ = next(iter(dataloader))
@@ -124,12 +131,15 @@ if __name__ == '__main__':
         ## data augmentations
         # this loop could be parallelized easily
         for sys in range(sampled_sys.shape[0]):
-            x1 = augment_linear(torch.squeeze(sampled_sys[sys,:,:,:]))    
+            x1 = augment_linear(torch.squeeze(sampled_sys[sys,:,:,:]))  
             x2 = augment_linear(torch.squeeze(sampled_sys[sys,:,:,:]))
             ##### NON-LINEAR AUGMENTATIONS
             if torch.rand(1) < ratio_deformed:
                 x1 = deform(x1)
                 x2 = deform(x2)
+            # Standardisation
+            x1 = (x1 - torch.mean(x1))/torch.std(x1)
+            x2 = (x2 - torch.mean(x2))/torch.std(x2)
             list_x1s.append(x1)
             list_x2s.append(x2)
         x1 = torch.flatten(torch.stack(list_x1s, dim=0),start_dim=1)#.to(device)

@@ -10,13 +10,14 @@ import torch
 from torch.utils.data import Dataset
 
 class DynsysDataset(Dataset):
-    def __init__(self, data_h5, transform=None, target_transform=None):
+    def __init__(self, data_h5, transform=None, target_transform=None, stride=1):
         self.filename = data_h5 # filename
         with h5py.File(data_h5, 'r') as f:
             self.len = len(f.keys())
         self.file = h5py.File(data_h5, 'r')
         self.transform = transform
         self.target_transform = target_transform
+        self.stride = stride
 
     def __len__(self):
         return self.len
@@ -25,7 +26,7 @@ class DynsysDataset(Dataset):
         dset = self.file[str(idx)]
         params = dset.attrs["params"]
         label = params[-1]
-        system = dset[...]
+        system = dset[:,::self.stride,:]
         if self.transform:
             system = self.transform(system)
         if self.target_transform:
